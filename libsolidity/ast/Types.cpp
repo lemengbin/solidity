@@ -1073,6 +1073,8 @@ bool StringLiteralType::isImplicitlyConvertibleTo(Type const& _convertTo) const
 			arrayType->isByteArray() &&
 			!(arrayType->dataStoredIn(DataLocation::Storage) && arrayType->isPointer()) &&
 			!(arrayType->isString() && !isValidUTF8());
+	else if (auto integerType = dynamic_cast<IntegerType const*>(&_convertTo))
+		return integerType->isAddress();
 	else
 		return false;
 }

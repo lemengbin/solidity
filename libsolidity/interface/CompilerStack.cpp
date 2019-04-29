@@ -42,6 +42,7 @@
 #include <libsolidity/interface/ABI.h>
 #include <libsolidity/interface/Natspec.h>
 #include <libsolidity/interface/GasEstimator.h>
+#include <libsolidity/interface/Base58.h>
 
 #include <libevmasm/Exceptions.h>
 
@@ -825,7 +826,7 @@ string CompilerStack::createMetadata(Contract const& _contract) const
 
 		solAssert(s.second.scanner, "Scanner not available");
 		meta["sources"][s.first]["keccak256"] =
-			"0x" + toHex(dev::keccak256(s.second.scanner->source()).asBytes());
+			EncodeBase58(dev::keccak256(s.second.scanner->source()).asBytes());
 		if (m_metadataLiteralSources)
 			meta["sources"][s.first]["content"] = s.second.scanner->source();
 		else
@@ -850,7 +851,7 @@ string CompilerStack::createMetadata(Contract const& _contract) const
 
 	meta["settings"]["libraries"] = Json::objectValue;
 	for (auto const& library: m_libraries)
-		meta["settings"]["libraries"][library.first] = "0x" + toHex(library.second.asBytes());
+		meta["settings"]["libraries"][library.first] = EncodeBase58(library.second.asBytes());
 
 	meta["output"]["abi"] = contractABI(_contract);
 	meta["output"]["userdoc"] = natspecUser(_contract);

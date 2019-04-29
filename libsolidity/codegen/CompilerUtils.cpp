@@ -26,6 +26,7 @@
 #include <libsolidity/codegen/ArrayUtils.h>
 #include <libsolidity/codegen/LValue.h>
 #include <libsolidity/codegen/ABIFunctions.h>
+#include <libsolidity/interface/Base58.h>
 
 using namespace std;
 
@@ -613,6 +614,17 @@ void CompilerUtils::convertType(
 			storeInMemoryDynamic(IntegerType(256));
 			// stack: mempos datapos
 			storeStringData(data);
+		}
+		else if (targetTypeCategory == Type::Category::Integer || targetTypeCategory == Type::Category::Contract)
+		{
+			solAssert(data.size() == 35 && data[0] == 'U' && data[1] == 'm', "Invalid conversion to IntegerType requested");
+
+			std::vector<unsigned char> addr;
+			solAssert(Base58AddressToAddress(value, addr) && addr.size() == 20, "Invalid decode base58 address");
+
+			bytesRef byr(&addr);
+			m_context << h256::Arith(h256(byr, h256::AlignLeft));
+			convertType(FixedBytesType(20), _targetType, _cleanupNeeded);
 		}
 		else
 			solAssert(
